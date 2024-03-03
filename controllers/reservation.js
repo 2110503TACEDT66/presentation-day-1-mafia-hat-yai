@@ -15,11 +15,22 @@ exports.getReservations = async (req, res, next) => {
         });
 
     } else { // Unless you're an admin.
-        if (req.params.restaurantId)
-        query = Reservation.find().populate({
-            path: 'restaurant',
+
+        if (req.params.restaurantId) { // Show only specified restaurant reservations if the restaurantId is included. 
+
+            console.log(req.params.restaurantId);
+            
+            query = Reservation.find({hospital: req.params.restaurantId,}).populate({
+                path: 'restaurant',
             select: 'name description',
-        });
+            });
+
+        } else { // Otherwise shows all of reservations
+            query = Reservation.find().populate({
+                path: 'restaurant',
+                select: 'name description',
+            });
+        }
     }
 
     try {
