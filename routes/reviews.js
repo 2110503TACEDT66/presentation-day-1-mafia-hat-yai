@@ -1,28 +1,27 @@
-// const express = require("express");
+const express = require("express");
 
-// const {
-//   getStars
-// } = require("../controllers/review");
+const {
+    addReview,
+    editReview,
+    removeReview,
+} = require("../controllers/reviews");
 
-// // Include other resource routers
-// const reservationRouter = require("./reservations");
+// Include other resource routers
+const reservationRouter = require("./reservations");
 
-// const router = express.Router();
+const router = express.Router();
 
-// const { protect, authorize } = require("../middleware/auth");
+const { protect, authorize } = require("../middleware/auth");
 
-// // Re-route into other resource routers
-// router.use("/:restaurantId/reservations/", reservationRouter);
+// Re-route into other resource routers
+router.use("/:restaurantId/reservations/", reservationRouter);
 
-// router
-//   .route("/")
-//   .get(getRestaurants)
-//   .post(protect, authorize("admin"), createRestaurant);
+// Review routes
+router.route("/:restaurantId")
+  .post(protect, authorize("user", "admin"), addReview);
 
-// router
-//   .route("/:id")
-//   .get(getRestaurant)
-//   .put(protect, authorize("admin"), updateRestaurant)
-//   .delete(protect, authorize("admin"), deleteRestaurant);
+router.route("/:restaurantId/:reviewId")
+  .put(protect, authorize("user", "admin"), editReview)
+  .delete(protect, authorize("user", "admin"), removeReview);
 
-// module.exports = router;
+module.exports = router;
