@@ -17,11 +17,11 @@ const RestaurantSchema = new mongoose.Schema({
     openclosetime: {
         open: {
             type: Date,
-            required: [true,'Please add Restaurant\'s open time']
+            required: [true,'Please add Restaurant\'s open times']
         },
         close: {
             type: Date,
-            required: [true,'Please add Restaurant\'s close time']
+            required: [true,'Please add Restaurant\'s close times']
         }
     },
     resetPasswordToken: String,
