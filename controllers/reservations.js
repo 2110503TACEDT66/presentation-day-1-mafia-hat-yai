@@ -16,10 +16,9 @@ exports.getReservations = async (req, res, next) => {
 
     } else { // Unless you're an admin.
 
-        if (req.params.restaurantId) { // Show only specified restaurant reservations if the restaurantId is included. 
-
+        if (req.params.restaurantId) { /* Show only specified restaurant reservations 
+            if the restaurantId is included. */
             console.log(req.params.restaurantId);
-            
             query = Reservation.find({Restaurant: req.params.restaurantId,}).populate({
                 path: 'restaurant',
                 select: 'name',
@@ -88,10 +87,8 @@ exports.getReservation = async (req, res, next) => {
 exports.addReservation = async (req, res, next) => {
     if (req.params.restaurantId) {
       req.body.restaurant = req.params.restaurantId;
-    } 
-
+    }
     try {
-        // req.body.restaurant = req.params.restaurant;
         const restaurant = await Restaurant.findById(req.body.restaurant);
 
         if (!restaurant) {

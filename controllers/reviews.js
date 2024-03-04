@@ -16,6 +16,17 @@ exports.addReview = async (req, res, next) => {
     console.log(req.body);
     const { stars, comment } = req.body;
 
+    const userVisitedRestaurant = await Review.findOne({
+      user: user,
+      restaurant: restaurant,
+    });
+    if (userVisitedRestaurant) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot add review. You already reviewed this restaurant",
+      });
+    }
+
     // Check if the restaurant exists
     const existingRestaurant = await Restaurant.findById(restaurant);
     if (!existingRestaurant) {
