@@ -7,23 +7,31 @@ const jwt = require("jsonwebtoken");
 //@access   Public
 exports.addReview = async (req, res, next) => {
   try {
-
     // Extract the user ID from the request's authentication token
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const user = decodedToken.id;
-    const restaurant = req.params.restaurantId
-    console.log(req.body);
+    const restaurant = req.params.restaurantId;
     const { stars, comment } = req.body;
 
-    const userVisitedRestaurant = await Review.findOne({
+    console.log(user, restaurant, stars, comment);
+
+    // Count the number of reviews the user has left for the restaurant
+    const userReviewsCount = await Review.countDocuments({
       user: user,
       restaurant: restaurant,
     });
-    if (userVisitedRestaurant) {
+
+    // Check if the user has already left 3 reviews for the restaurant
+    if (req.user.role !== 'admin' && userReviewsCount >= 3) {
+      const userReviews = await Review.find({
+        user: user,
+        restaurant: restaurant,
+      });
       return res.status(400).json({
         success: false,
-        message: "Cannot add review. You already reviewed this restaurant",
+        message: "Cannot add review. You have already left 3 reviews for this restaurant",
+        userReviews: userReviews,
       });
     }
 
@@ -43,6 +51,8 @@ exports.addReview = async (req, res, next) => {
       stars,
       comment,
     });
+
+    console.log(newReview.id);
 
     // Add the review to the restaurant's reviews
     existingRestaurant.userReviews.push(newReview._id);
