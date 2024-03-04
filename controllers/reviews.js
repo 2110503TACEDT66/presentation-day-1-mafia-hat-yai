@@ -96,7 +96,6 @@ exports.editReview = async (req, res, next) => {
   }
 };
 
-
 exports.removeReview = async (req, res, next) => {
   try {
     const { reviewId } = req.params;
@@ -109,6 +108,13 @@ exports.removeReview = async (req, res, next) => {
         .json({ success: false, message: "Review not found" });
     }
 
+    // Ensure existingReview is a Mongoose document
+    if (!existingReview._id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid review document" });
+    }
+
     // Remove the review from the restaurant's reviews
     const restaurantId = existingReview.restaurant;
     const restaurant = await Restaurant.findById(restaurantId);
@@ -116,13 +122,12 @@ exports.removeReview = async (req, res, next) => {
     await restaurant.save();
 
     // Delete the review
-    await existingReview.remove();
+    await existingReview.deleteOne();
 
     res.status(200).json({
       success: true,
-      message: "Review deleted successfully"
+      message: "Review deleted successfully",
     });
-
   } catch (error) {
     next(error);
   }
