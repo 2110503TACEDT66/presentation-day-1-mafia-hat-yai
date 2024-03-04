@@ -16,6 +16,8 @@ exports.register = async (req, res, next) => {
             role
         });
 
+        console.log(`User with email ${user.email} has registered to the system.`);
+
         sendTokenResponse(user, 200, res);
 
     } catch (err) {

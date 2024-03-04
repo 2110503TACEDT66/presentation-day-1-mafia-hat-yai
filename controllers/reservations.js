@@ -1,4 +1,4 @@
-const Reservation = require('../models/Reservations');
+const Reservation = require('../models/Reservation');
 const Restaurant = require('../models/Restaurant');
 
 //@desc     Get all reservations
@@ -11,7 +11,7 @@ exports.getReservations = async (req, res, next) => {
     if (req.user.role !== 'admin') {
         query = Reservation.find({ user: req.user.id }).populate({
             path: 'restaurant',
-            select: 'name description'
+            select: 'name'
         });
 
     } else { // Unless you're an admin.
@@ -20,15 +20,15 @@ exports.getReservations = async (req, res, next) => {
 
             console.log(req.params.restaurantId);
             
-            query = Reservation.find({hospital: req.params.restaurantId,}).populate({
+            query = Reservation.find({Restaurant: req.params.restaurantId,}).populate({
                 path: 'restaurant',
-            select: 'name description',
+                select: 'name',
             });
 
         } else { // Otherwise shows all of reservations
             query = Reservation.find().populate({
                 path: 'restaurant',
-                select: 'name description',
+                select: 'name',
             });
         }
     }
@@ -54,11 +54,11 @@ exports.getReservations = async (req, res, next) => {
 //@desc     Get single reservation
 //@route    GET /api/v1/reservations/:id
 //@access   Public
-exports.getReservation = async (req,res,next)=>{
+exports.getReservation = async (req, res, next) => {
     try {
         const reservation = await Reservation.findById(req.params.id).populate({
             path: 'restaurant',
-            select: 'name description'
+            select: 'name'
         });
 
         if (!reservation) {
@@ -83,17 +83,29 @@ exports.getReservation = async (req,res,next)=>{
 };
 
 //@desc     Add reservations
-//@route    POST /api/v1/reservations/:restaurantId/reservation
+//@route    POST /api/v1/reservations/:id
 //@access   Private
 exports.addReservation = async (req, res, next) => {
     try {
-        req.body.Restaurant = req.params.restaurantId;
-        const hospital = await Restaurant.findById(req.params.hospitalId);
+        console.log(req.body);
+        console.log("^ Body && v Params");
+        console.log(req.params);
+    } catch (err) {
+        console.log(err);
+    }
 
-        if (!hospital) {
+    if (req.params.restaurantId) {
+      req.body.restaurant = req.params.restaurantId;
+    } 
+
+    try {
+        // req.body.restaurant = req.params.restaurant;
+        const restaurant = await Restaurant.findById(req.body.restaurant);
+
+        if (!restaurant) {
             return res.status(400).json({
                 success: false,
-                message: `No hospital with the id of ${req.params.hospitalId}`
+                message: `No restaurant found with the id ${req.params.restaurantId}`,
             });
         }
 
@@ -102,14 +114,14 @@ exports.addReservation = async (req, res, next) => {
         // add user Id to req.body
         req.body.user = req.user.id;
 
-        // Check for existed reservation
-        const existedReservations = await Reservation.find({ user: req.user.id });
+        // Check for existing reservations
+        const existingReservations = await Reservation.find({ user: req.user.id });
 
-        // If the user is not admin, they can only create 3 reservation
-        if (existedReservations.length >= 3 && req.user.role !== 'admin') {
+        // If the user is not an admin, they can only create 3 reservations
+        if (existingReservations.length >= 3 && req.user.role !== 'admin') {
             return res.status(400).json({
                 success: false,
-                message: `The user with ID ${req.user.id} has already made 3 reservations`
+                message: `The user with ID ${req.user.id} has already made 3 reservations`,
             });
         }
 
@@ -117,18 +129,19 @@ exports.addReservation = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: reservation
+            data: reservation,
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error); // Log the error for debugging
 
         return res.status(500).json({
             success: false,
-            message: "Cannot create Reservation"
+            message: "Internal server error. Please try again later.",
         });
     }
 };
+
 
 //@desc     Update reservation
 //@route    PUT /api/v1/reservations/:id
