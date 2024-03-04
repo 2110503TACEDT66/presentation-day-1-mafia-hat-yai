@@ -8,15 +8,19 @@ exports.getRestaurants = async (req, res, next) => {
     let restaurant; 
     // Executing query
     if (req.user.role !== 'admin') {
-      // If user is not an admin, they can only see restaurant information, eg. address opening, closed time, address etc.
-      restaurant  = await Restaurant.find().populate({
-        path: 'reservation',
-        match: {user: req.user.id},
-      });
+      // If user is not an admin, they can only see basic restaurant information
+      restaurant = await Restaurant.find()
+        .populate({
+          path: "reservation",
+          match: { user: req.user.id },
+        })
+        .populate("userReviews");
 
     } else {
       // If user is  an admin, they can see all restaurant information
-      restaurant = await Restaurant.find().populate('reservation');
+      restaurant = await Restaurant.find()
+        .populate("reservation")
+        .populate("userReviews");
     }
 
     res.status(200).json({
@@ -42,7 +46,7 @@ exports.getRestaurant = async (req, res, next) => {
     // Executing query
     if (req.user.role !== 'admin') {
       restaurant = await Restaurant.findById(req.params.id).populate({
-        path: 'reservation',
+        path: "reservation",
         match: { user: req.user.id },
       });
     } else {
