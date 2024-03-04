@@ -86,14 +86,6 @@ exports.getReservation = async (req, res, next) => {
 //@route    POST /api/v1/reservations/:id
 //@access   Private
 exports.addReservation = async (req, res, next) => {
-    try {
-        console.log(req.body);
-        console.log("^ Body && v Params");
-        console.log(req.params);
-    } catch (err) {
-        console.log(err);
-    }
-
     if (req.params.restaurantId) {
       req.body.restaurant = req.params.restaurantId;
     } 
