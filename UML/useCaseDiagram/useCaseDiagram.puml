@@ -1,45 +1,23 @@
-@startuml Case Diagram
-skinparam actorStyle awesome
+@startuml Restaurant Reservation Use Case Diagram
 left to right direction
-actor "User" as user
-actor "Admin" as ad
-rectangle "Restaurant Reservation" {
-  usecase "Register" as UC1
-  usecase "Login" as UC2
-  usecase "Logout" as UC3
-  usecase "See all restaurant details" as UC4
-  usecase "Update restaurant details" as UC5
-  usecase "Delete restaurant" as UC6
-  usecase "Add new restaurant" as UC7
-  usecase "See reservation details" as UC8
-  usecase "Update reservation details" as UC9
-  usecase "Create new reservation" as UC10
-  usecase "Delete reservation" as UC11
-  usecase "Get current user" as UC12
+rectangle "Restaurant Reservation" as ReservationSystem {    
+    usecase "Register" as register
+    usecase "Login" as login
+    usecase "View Restaurants" as viewRestaurants
+    usecase "Manage Reservations" as manageReservations
+    usecase "Manage Restaurants" as manageRestaurants
 }
-UC1 <. UC2 : include
-UC1 <. UC12 : include
 
-ad -up-> UC1
-ad -up-> UC2
-ad -up-> UC3
-ad -up-> UC4
-ad -up-> UC5
-ad -up-> UC6
-ad -up-> UC7
-ad -up-> UC8
-ad -up-> UC9
-ad -up-> UC10
-ad -up-> UC11
-ad -up-> UC12
+actor "User" as user
+user -- register
+user -- login
+user -- viewRestaurants
+user -- manageReservations
 
-user --> UC1
-user --> UC2
-user --> UC3
-user --> UC4
-user --> UC8
-user --> UC9
-user --> UC11
-user --> UC10
+actor "Admin" as admin
+register -- admin
+login -- admin
+manageRestaurants -- admin
+manageReservations -- admin
 
 @enduml
