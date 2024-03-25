@@ -8,6 +8,9 @@ const { xss } = require('express-xss-sanitizer');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+const bodyParser = require("body-parser");
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });
@@ -61,7 +64,33 @@ app.use("/api/v1/reviews", reviews);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, console.log('Server running in ', process.env.NODE_ENV, ' mode on port ', PORT));
+const server = app.listen(
+    PORT,
+    console.log(
+        'Server running in ',
+        process.env.NODE_ENV,
+        'on ' + process.env.HOST + " :" + PORT
+    )
+);
+
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Library API",
+            version: "1.0.0",
+            description: "Reservation Booking",
+        },
+        server: [
+            {
+                url: process.env.HOST + ":" + PORT + "/api/v1",
+            },
+        ],
+    },
+};
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {

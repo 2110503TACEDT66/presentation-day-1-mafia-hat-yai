@@ -85,7 +85,7 @@ exports.getReservation = async (req, res, next) => {
 //@route    POST /api/v1/reservations/:id
 //@access   Private
 exports.addReservation = async (req, res, next) => {
-    if (req.params.restaurantId) {
+    if (req.params.restaurantId && !req.body.restaurant) {
       req.body.restaurant = req.params.restaurantId;
     }
     try {

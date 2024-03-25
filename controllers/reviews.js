@@ -123,6 +123,8 @@ exports.removeReview = async (req, res, next) => {
 
     // Delete the review
     await existingReview.deleteOne();
+    
+    await restaurant.save();
 
     res.status(200).json({
       success: true,
