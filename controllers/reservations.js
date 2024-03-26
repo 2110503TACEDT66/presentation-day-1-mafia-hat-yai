@@ -7,29 +7,21 @@ const Restaurant = require('../models/Restaurant');
 exports.getReservations = async (req, res, next) => {
     let query;
 
-    // General users are restricted to viewing only their restaurant reservations.
-    if (req.user.role !== 'admin') {
-        query = Reservation.find({ user: req.user.id }).populate({
+    // No authentication check, anyone can access this route.
+
+    if (req.params.restaurantId) { /* Show only specified restaurant reservations 
+        if the restaurantId is included. */
+        console.log(req.params.restaurantId);
+        query = Reservation.find({ Restaurant: req.params.restaurantId, }).populate({
             path: 'restaurant',
-            select: 'name'
+            select: 'name',
         });
 
-    } else { // Unless you're an admin.
-
-        if (req.params.restaurantId) { /* Show only specified restaurant reservations 
-            if the restaurantId is included. */
-            console.log(req.params.restaurantId);
-            query = Reservation.find({Restaurant: req.params.restaurantId,}).populate({
-                path: 'restaurant',
-                select: 'name',
-            });
-
-        } else { // Otherwise shows all of reservations
-            query = Reservation.find().populate({
-                path: 'restaurant',
-                select: 'name',
-            });
-        }
+    } else { // Otherwise shows all of reservations
+        query = Reservation.find().populate({
+            path: 'restaurant',
+            select: 'name',
+        });
     }
 
     try {
@@ -43,7 +35,7 @@ exports.getReservations = async (req, res, next) => {
 
     } catch (error) {
         console.log(error);
-        return res.stutus(500).json({
+        return res.status(500).json({
             success: false,
             message: "Cannot find Reservation"
         });
@@ -86,7 +78,7 @@ exports.getReservation = async (req, res, next) => {
 //@access   Private
 exports.addReservation = async (req, res, next) => {
     if (req.params.restaurantId && !req.body.restaurant) {
-      req.body.restaurant = req.params.restaurantId;
+        req.body.restaurant = req.params.restaurantId;
     }
     try {
         const restaurant = await Restaurant.findById(req.body.restaurant);
@@ -100,19 +92,11 @@ exports.addReservation = async (req, res, next) => {
 
         console.log(req.body);
 
-        // add user Id to req.body
-        req.body.user = req.user.id;
-
         // Check for existing reservations
-        const existingReservations = await Reservation.find({ user: req.user.id });
+        const existingReservations = await Reservation.find({ user: req.body.user });
 
-        // If the user is not an admin, they can only create 3 reservations
-        if (existingReservations.length >= 3 && req.user.role !== 'admin') {
-            return res.status(400).json({
-                success: false,
-                message: `The user with ID ${req.user.id} has already made 3 reservations`,
-            });
-        }
+        // If you want to limit reservations per user, you can check here
+        // However, in this example, we're assuming there's no limit
 
         const reservation = await Reservation.create(req.body);
 
@@ -130,6 +114,7 @@ exports.addReservation = async (req, res, next) => {
         });
     }
 };
+
 
 
 //@desc     Update reservation
