@@ -5,33 +5,20 @@ const Restaurant = require('../models/Restaurant');
 //@access   Public
 exports.getRestaurants = async (req, res, next) => {
   try {
-    let restaurant; 
-    // Executing query
-    if (req.user.role !== 'admin') {
-      // If user is not an admin, they can only see basic restaurant information
-      restaurant = await Restaurant.find()
-        .populate({
-          path: "reservation",
-          match: { user: req.user.id },
-        })
-        .populate("userReviews");
-
-    } else {
-      // If user is  an admin, they can see all restaurant information
-      restaurant = await Restaurant.find()
-        .populate("reservation")
-        .populate("userReviews");
-    }
+    const restaurants = await Restaurant.find()
+      .populate("reservation")
+      .populate("userReviews");
 
     res.status(200).json({
-        success: true,
-        count: restaurant.length,
-        data: restaurant
+      success: true,
+      count: restaurants.length,
+      data: restaurants
     });
 
   } catch (err) {
     res.status(400).json({
-      success: false
+      success: false,
+      message: "Cannot get restaurants"
     });
   }
 };
@@ -42,16 +29,7 @@ exports.getRestaurants = async (req, res, next) => {
 //@access   Public
 exports.getRestaurant = async (req, res, next) => {
   try {
-    let restaurant; 
-    // Executing query
-    if (req.user.role !== 'admin') {
-      restaurant = await Restaurant.findById(req.params.id).populate({
-        path: "reservation",
-        match: { user: req.user.id },
-      });
-    } else {
-      restaurant = await Restaurant.findById(req.params.id).populate('reservation');
-    }
+    const restaurant = await Restaurant.findById(req.params.id).populate('reservation');
 
     if (!restaurant) {
       return res.status(400).json({
@@ -71,7 +49,6 @@ exports.getRestaurant = async (req, res, next) => {
     });
   }
 };
-
 
 //@desc     Create new restaurant
 //@route    POST /api/v1/restaurants

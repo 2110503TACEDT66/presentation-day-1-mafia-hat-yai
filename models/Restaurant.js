@@ -14,6 +14,10 @@ const RestaurantSchema = new mongoose.Schema({
         required: [true, "Please add Restaurant's telephone number"],
         unique: true,
     },
+    picture: {
+        type: String,
+        required: [true, "Please add picture"],
+    },
     open: {
         type: Date,
         required: [true, "Please add Restaurant's open time"],
