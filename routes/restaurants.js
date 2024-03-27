@@ -16,7 +16,8 @@ router
     .route("/")
     .get(getRestaurants)
     // .get(protect, authorize('user','admin'), getRestaurants)
-    .post(protect, authorize('admin'), createRestaurant);
+    .post(createRestaurant);
+    // .post(protect, authorize('admin'), createRestaurant);
 
 router.route('/:id')
     .get(getRestaurant)

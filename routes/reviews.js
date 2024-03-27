@@ -18,10 +18,13 @@ router.use("/:restaurantId/reservations/", reservationRouter);
 
 // Review routes
 router.route("/:restaurantId")
-  .post(protect, authorize("user", "admin"), addReview);
+  // .post(protect, authorize("user", "admin"), addReview);
+  .post(addReview);
 
 router.route("/:restaurantId/:reviewId")
-  .put(protect, authorize("user", "admin"), editReview)
-  .delete(protect, authorize("user", "admin"), removeReview);
+  // .put(protect, authorize("user", "admin"), editReview)
+  .put(editReview)
+  // .delete(protect, authorize("user", "admin"), removeReview);
+  .delete(removeReview);
 
 module.exports = router;
