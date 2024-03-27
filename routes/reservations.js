@@ -11,9 +11,12 @@ router.route('/')
     .post(addReservation);
     
 router.route('/:id')
-    .get(protect, authorize('admin', 'user'), getReservation)
-    .put(protect, authorize('admin','user'), updateReservation)
-    .delete(protect, authorize('admin','user'), deleteReservation);
+    // .get(protect, authorize('admin', 'user'), getReservation)
+    .get(getReservation)
+    // .put(protect, authorize('admin','user'), updateReservation)
+    .put(updateReservation)
+    // .delete(protect, authorize('admin','user'), deleteReservation);
+    .delete(deleteReservation);
     
 
 module.exports = router;

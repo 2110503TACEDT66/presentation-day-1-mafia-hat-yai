@@ -8,22 +8,29 @@ exports.getReservations = async (req, res, next) => {
     let query;
 
     // No authentication check, anyone can access this route.
+    // if (req.user.role !== 'admin') {
+    //     query = Reservation.find({ user: req.user.id }).populate({
+    //         path: 'restaurant',
+    //         select: 'name'
+    //     });
 
-    if (req.params.restaurantId) { /* Show only specified restaurant reservations 
+    // } else {
+        if (req.params.restaurantId) { /* Show only specified restaurant reservations 
         if the restaurantId is included. */
         console.log(req.params.restaurantId);
         query = Reservation.find({ Restaurant: req.params.restaurantId, }).populate({
             path: 'restaurant',
             select: 'name',
         });
-
-    } else { // Otherwise shows all of reservations
-        query = Reservation.find().populate({
-            path: 'restaurant',
-            select: 'name',
-        });
-    }
-
+        
+        } else { // Otherwise shows all of reservations
+            query = Reservation.find().populate({
+                path: 'restaurant',
+                select: 'name',
+            });
+        }
+    // }   
+    
     try {
         const reservations = await query;
 
@@ -77,9 +84,6 @@ exports.getReservation = async (req, res, next) => {
 //@route    POST /api/v1/reservations/:id
 //@access   Private
 exports.addReservation = async (req, res, next) => {
-    if (req.params.restaurantId && !req.body.restaurant) {
-        req.body.restaurant = req.params.restaurantId;
-    }
     try {
         const restaurant = await Restaurant.findById(req.body.restaurant);
 
@@ -131,17 +135,12 @@ exports.updateReservation = async (req, res, next) => {
             });
         }
 
-        // Make sure user is the reservation owner
-        if (reservation.user.toString() !== req.user.id && req.user.role !== 'admin') {
-            return res.status(401).json({
-                success: false,
-                message: `User ${req.user.id} is not authorized to uppdate this reservation`
-            });
-        }   
-        
+        // Implement authorization check here
+
+        // Update reservation
         reservation = await Reservation.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
+            new: true, // Return the updated document
+            runValidators: true // Run validators to ensure data validity
         });
 
         res.status(200).json({
@@ -163,29 +162,23 @@ exports.updateReservation = async (req, res, next) => {
 //@access   Private
 exports.deleteReservation = async (req, res, next) => {
     try {
-      const reservation = await Reservation.findById(req.params.id);
+        const reservation = await Reservation.findById(req.params.id);
 
-      if (!reservation) {
-        return res.status(404).json({
-          success: false,
-          message: `No reservation with theid of ${req.params.id}`,
+        if (!reservation) {
+            return res.status(404).json({
+                success: false,
+                message: `No reservation with the id of ${req.params.id}`,
+            });
+        }
+
+        // Remove authorization check
+
+        await reservation.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            data: {},
         });
-      }
-
-      // Make sure user is the reservation owner
-      if (reservation.user.toString() !== req.user.id && req.user.role !== 'admin' ) {
-        return res.status(401).json({
-          success: false,
-          message: `User ${req.user.id} is not authorized to delete this reservation`,
-        });
-      }
-
-      await reservation.deleteOne();
-
-      res.status(200).json({
-        success: true,
-        data: {},
-      });
     } catch (error) {
         console.log(error);
 
